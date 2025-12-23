@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Music Player</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #1a1a2e;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    color: #fff;
+    margin: 0;
+}
+
+.player {
+    background: #2a2a40;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    width: 350px;
+    text-align: center;
+}
+
+.player h1 {
+    margin-bottom: 5px;
+    font-size: 28px;
+}
+
+.player h3 {
+    margin-bottom: 20px;
+    font-size: 18px;
+    color: #aaa;
+}
+
+.controls {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+}
+
+button {
+    background: #444;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 18px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+button:hover {
+    background: #666;
+}
+
+.progress-container {
+    background: #444;
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    margin: 15px 0;
+    cursor: pointer;
+}
+
+.progress {
+    background: #00ffcc;
+    height: 100%;
+    width: 0%;
+    border-radius: 3px;
+}
+
+input[type="range"] {
+    width: 100%;
+    margin-top: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="player">
+    <h1>Music Player 🎵</h1>
+    <h3 id="song-title">Melody Songs</h3>
+
+    <div class="progress-container" id="progress-container">
+        <div class="progress" id="progress"></div>
+    </div>
+    <span id="current-time">0:00</span> / <span id="duration">0:00</span>
+
+    <div class="controls">
+        <button id="prev">&#9664;</button>
+        <button id="play">&#9654;</button>
+        <button id="next">&#9654;&#9654;</button>
+    </div>
+
+    <input type="range" id="volume" min="0" max="1" step="0.01" value="1">
+</div>
+
+<audio id="audio"></audio>
+
+<script>
+// Playlist
+const songs = [
+    { title: "Song One", src: "song1.mp3" },
+    { title: "Song Two", src: "song2.mp3" },
+    { title: "Song Three", src: "song3.mp3" }
+];
+
+let currentSongIndex = 0;
+
+const audio = document.getElementById("audio");
+const playBtn = document.getElementById("play");
+const prevBtn = document.getElementById("prev");
+const nextBtn = document.getElementById("next");
+const progress = document.getElementById("progress");
+const progressContainer = document.getElementById("progress-container");
+const currentTimeEl = document.getElementById("current-time");
+const durationEl = document.getElementById("duration");
+const volumeControl = document.getElementById("volume");
+const songTitle = document.getElementById("song-title");
+
+function loadSong(song) {
+    audio.src = song.src;
+    songTitle.innerText = song.title;
+}
+
+function playSong() {
+    audio.play();
+    playBtn.innerHTML = "&#10074;&#10074;";
+}
+
+function pauseSong() {
+    audio.pause();
+    playBtn.innerHTML = "&#9654;";
+}
+
+playBtn.addEventListener("click", () => {
+    audio.paused ? playSong() : pauseSong();
+});
+
+prevBtn.addEventListener("click", () => {
+    currentSongIndex--;
+    if (currentSongIndex < 0) currentSongIndex = songs.length - 1;
+    loadSong(songs[currentSongIndex]);
+    playSong();
+});
+
+nextBtn.addEventListener("click", () => {
+    currentSongIndex++;
+    if (currentSongIndex >= songs.length) currentSongIndex = 0;
+    loadSong(songs[currentSongIndex]);
+    playSong();
+});
+
+audio.addEventListener("timeupdate", () => {
+    const { duration, currentTime } = audio;
+    if (duration) {
+        progress.style.width = `${(currentTime / duration) * 100}%`;
+
+        let min = Math.floor(currentTime / 60);
+        let sec = Math.floor(currentTime % 60);
+        if (sec < 10) sec = "0" + sec;
+        currentTimeEl.innerText = `${min}:${sec}`;
+
+        let dMin = Math.floor(duration / 60);
+        let dSec = Math.floor(duration % 60);
+        if (dSec < 10) dSec = "0" + dSec;
+        durationEl.innerText = `${dMin}:${dSec}`;
+    }
+});
+
+progressContainer.addEventListener("click", (e) => {
+    audio.currentTime = (e.offsetX / progressContainer.clientWidth) * audio.duration;
+});
+
+volumeControl.addEventListener("input", (e) => {
+    audio.volume = e.target.value;
+});
+
+audio.addEventListener("ended", () => {
+    nextBtn.click();
+});
+
+// Load first song
+loadSong(songs[currentSongIndex]);
+</script>
+
+</body>
+</html>
+
+
+
+
